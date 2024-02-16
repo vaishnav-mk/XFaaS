@@ -37,9 +37,9 @@ trash-files
 jmeter.log
 *.csv
 =12.0.0
-        Python-3.8.0.tgz
-        Python-3.8.0/
-        apache-jmeter-5.5/
-        aws/
-        get-pip.py
-        sam-installation/
+Python-3.8.0.tgz
+Python-3.8.0/
+apache-jmeter-5.5/
+aws/
+get-pip.py
+sam-installation/
