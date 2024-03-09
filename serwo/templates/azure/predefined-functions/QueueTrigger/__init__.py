@@ -12,7 +12,7 @@ def get_delta(start_time):
 
 func_id = 253
 
-app_name = 'xfaasgraph909953'
+app_name = 'xfaasNewQuantumWorkflow796416'
 
 
 async def main(msg: func.QueueMessage,starter: str) -> None:
