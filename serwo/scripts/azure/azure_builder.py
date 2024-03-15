@@ -4,6 +4,7 @@ import pathlib
 import shutil
 from jinja2 import Environment, FileSystemLoader
 from signal import signal, SIGPIPE, SIG_DFL
+from .orchestrator_async_update import async_update
 
 signal(SIGPIPE,SIG_DFL)
 from random import randint
@@ -339,7 +340,7 @@ def generate_app_name_and_populate_and_get_ingress_queue_name(user_app_name,regi
 
 def build(user_dir, dag_definition_file, region, part_id,is_netherite):
     global USER_DIR,DAG_DEFINITION_FILE
-
+    is_async = True
     USER_DIR = user_dir
     DAG_DEFINITION_FILE = dag_definition_file
     init_paths()
@@ -350,7 +351,12 @@ def build(user_dir, dag_definition_file, region, part_id,is_netherite):
     copy_meta_files(user_fns_data,ingress_queue_name,app_name,is_netherite)
     gen_requirements(user_fns_data)
     re_written_generator(user_fns_data)
-
+    orchestrator_generated_path = f"{user_workflow_directory}/orchestrator.py"
+    orch_dest_path = f"{az_functions_path}/Orchestrate/__init__.py"
+    if is_async :
+        print("Orchestrator initial path:",orchestrator_generated_path)
+        print("Orchestrator dest path:",orch_dest_path)
+        async_update.orchestrator_async_update(orchestrator_generated_path,orch_dest_path)
 
 if __name__ == '__main__':
     user_dir = sys.argv[1]

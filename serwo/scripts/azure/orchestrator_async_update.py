@@ -63,6 +63,10 @@ def add_poll(orch_path, var_name,out_orch_path):
             found_var = False
             continue
         else:
+            #Inserting check poll defination
+            if "def orchestrator_function" in line:
+                new_code ='def checkPoll(obj):\n\tbody=unmarshall(json.loads(obj)).get_body()\n\treturn True if body["Poll"] == "Yes" else False\n'
+                new_lines.append(new_code)
             new_lines.append(line)
     # print("New_lines:",new_lines)
     # Write the modified content back to the file
@@ -70,10 +74,13 @@ def add_poll(orch_path, var_name,out_orch_path):
         file_ptr.write(''.join(new_lines))
     os.system(f"autopep8 --in-place {out_orch_path}")
 
-def orchestrator_async_update(in_orchestrator_path,out_orchestrator_path):
-    var_name = find_var(in_orchestrator_path,"= insert_end_stats_in_metadata")
-    # print("Variable name:", var_name)
-    add_poll(in_orchestrator_path,var_name,out_orchestrator_path)
+
+class async_update:
+    
+    def orchestrator_async_update(in_orchestrator_path,out_orchestrator_path):
+        var_name = find_var(in_orchestrator_path,"= insert_end_stats_in_metadata")
+        # print("Variable name:", var_name)
+        add_poll(in_orchestrator_path,var_name,out_orchestrator_path)
 
 # input_path='/home/tarun/XFaaS/Azure/ip_orchestrtor.py'
 # output_path='/home/tarun/XFaaS/Azure/out_orch.py'
