@@ -17,16 +17,33 @@ import random
 import sys
 import json
 import pathlib
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog="ProgramName",
+    description="What the program does",
+    epilog="Text at the bottom of help",
+)
+parser.add_argument("--csp",dest='csp',type=str,help="CSP name")
+parser.add_argument("--region",dest='region',type=str,help="Region name")
+parser.add_argument("--wf-user-directory",dest='wf_user_directory',type=str,help="Workflow user directory")
+parser.add_argument("--dag-benchmark",dest='dag_benchmark',type=str,help="Path DAG Benchmark")
+parser.add_argument("--dag-file-name",dest='dag_filename',type=str,help="DAG FILE NAME")
+parser.add_argument("--is-async",dest='is_async',type=str,help="Is Async Fn",default=0)
 project_dir = pathlib.Path(__file__).parent.resolve()
 
-USER_DIR = sys.argv[1]
-DAG_DEFINITION_FILE = sys.argv[2]
+
+args = parser.parse_args()
+    
+is_async_flag = bool(int(args.is_async))
+USER_DIR = args.wf_user_directory
+DAG_DEFINITION_FILE =  args.dag_filename
 
 DAG_DEFINITION_PATH = f"{USER_DIR}/{DAG_DEFINITION_FILE}"
-BENCHMARK_FILE = sys.argv[3]
+BENCHMARK_FILE =  args.dag_benchmark
 benchmark_path = f'{USER_DIR}/{BENCHMARK_FILE}'
-csp = sys.argv[4]
-region = sys.argv[5]
+csp = args.csp
+region = args.region
 part_id = "test"
 def get_user_pinned_nodes():
 
@@ -171,7 +188,7 @@ def run(user_wf_dir, dag_definition_file, benchmark_file, csp,region):
     dag_definition_path = f'{user_wf_dir}/refactored-{dag_definition_file}'
     refactored_wf_id = xfaas_provenance.push_refactored_workflow("refactored-dag.json", user_wf_dir, wf_id,csp)
     wf_deployment_id = xfaas_provenance.push_deployment_logs("refactored-dag.json",user_wf_dir,wf_id,refactored_wf_id,csp)
-    xfaas_resource_generator.generate(user_wf_dir, dag_definition_path, partition_config,"refactored-dag.json")
+    xfaas_resource_generator.generate(user_wf_dir, dag_definition_path, partition_config,"refactored-dag.json",is_async_flag)
     xfaas_provenance.generate_provenance_artifacts(user_wf_dir,wf_id,refactored_wf_id,wf_deployment_id,csp,region,part_id,queue_details)
 
     return wf_id, refactored_wf_id, wf_deployment_id

@@ -338,9 +338,8 @@ def generate_app_name_and_populate_and_get_ingress_queue_name(user_app_name,regi
     return data['queue_name'],data['app_name']
 
 
-def build(user_dir, dag_definition_file, region, part_id,is_netherite):
+def build(user_dir, dag_definition_file, region, part_id,is_netherite,is_async):
     global USER_DIR,DAG_DEFINITION_FILE
-    is_async = True
     USER_DIR = user_dir
     DAG_DEFINITION_FILE = dag_definition_file
     init_paths()

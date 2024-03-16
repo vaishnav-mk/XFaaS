@@ -32,6 +32,7 @@ parser.add_argument("--function-class",dest='function_class',type=str,help="Func
 parser.add_argument("--function-name",dest='function_name',type=str,help="Function name")
 parser.add_argument("--function-code",dest='function_code',type=str,help="Function code")
 parser.add_argument("--node_name",dest='node_name',type=str,help="Node name")
+parser.add_argument("--dag-benchmark",dest='dag_benchmark',type=str,help="Path DAG Benchmark")
 
 artifact_suffix = 'artifact.json'
 args = parser.parse_args()
