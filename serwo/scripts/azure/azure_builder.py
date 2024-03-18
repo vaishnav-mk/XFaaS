@@ -352,10 +352,10 @@ def build(user_dir, dag_definition_file, region, part_id,is_netherite,is_async):
     re_written_generator(user_fns_data)
     orchestrator_generated_path = f"{user_workflow_directory}/orchestrator.py"
     orch_dest_path = f"{az_functions_path}/Orchestrate/__init__.py"
-    if is_async :
-        print("Orchestrator initial path:",orchestrator_generated_path)
-        print("Orchestrator dest path:",orch_dest_path)
-        async_update.orchestrator_async_update(orchestrator_generated_path,orch_dest_path)
+    # if is_async :
+    #     print("Orchestrator initial path:",orchestrator_generated_path)
+    #     print("Orchestrator dest path:",orch_dest_path)
+    async_update.orchestrator_async_update(orchestrator_generated_path,orch_dest_path)
 
 if __name__ == '__main__':
     user_dir = sys.argv[1]
