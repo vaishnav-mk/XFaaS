@@ -174,7 +174,7 @@ def add_collect_logs(dag_definition_path,user_wf_dir, xfaas_user_dag,region):
     
     return fin_dict
 
-def add_async_waitXfn(dag_path,user_wf_dir):
+def add_async_waitXfn(dag_path,user_wf_dir,dag_refractored_path):
 
     data = json.load(open(dag_path))
     fns_data = data['Nodes']
@@ -202,10 +202,11 @@ def add_async_waitXfn(dag_path,user_wf_dir):
 
         # Copy all files from the current directory to the new directory
         for filename in os.listdir(WaitXSeconds_template_dir):
+            print("filename to be copied",filename)
             file_path = os.path.join(WaitXSeconds_template_dir, filename)
         # Check if it's a file and not a directory
-        if os.path.isfile(file_path):
-            shutil.copy(file_path, new_WaitXSeconds_template_dir)
+            if os.path.isfile(file_path):
+                shutil.copy(file_path, new_WaitXSeconds_template_dir)
     except Exception as e:
         print(e)
         print("Not able to copy WaitXSeconds file to directory")
@@ -232,7 +233,7 @@ def add_async_waitXfn(dag_path,user_wf_dir):
 
     #Writing into dag-refractor.json
     json_string = json.dumps(data, indent=4)    
-    file_path = dag_path
+    file_path = dag_refractored_path
     with open(file_path, "w") as json_file:
         json_file.write(json_string)
 
@@ -248,8 +249,8 @@ def run(user_wf_dir, dag_definition_file, benchmark_file, csp,region):
 
     wf_id = xfaas_provenance.push_user_dag(dag_definition_path)
     queue_details = add_collect_logs(dag_definition_path,user_wf_dir,xfaas_user_dag,region)
-    add_async_waitXfn(dag_definition_path,user_wf_dir)  # print("Added Async update fn ality to dag.json")
     dag_definition_path = f'{user_wf_dir}/refactored-{dag_definition_file}'
+    add_async_waitXfn(dag_definition_path,user_wf_dir,dag_definition_path)  # print("Added Async update fn ality to dag.json")
     refactored_wf_id = xfaas_provenance.push_refactored_workflow("refactored-dag.json", user_wf_dir, wf_id,csp)
     wf_deployment_id = xfaas_provenance.push_deployment_logs("refactored-dag.json",user_wf_dir,wf_id,refactored_wf_id,csp)
     xfaas_resource_generator.generate(user_wf_dir, dag_definition_path, partition_config,"refactored-dag.json",is_async_flag)
