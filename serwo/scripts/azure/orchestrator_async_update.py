@@ -24,22 +24,28 @@ def extract_var(input_str):
     # print("Second Argument:", second_argument)
     return str(variable_name), first_argument, str(second_argument)
 
-def find_var(orch_path,var='Async'):
+def find_var(orch_path,async_fn_name_list):
     with open(orch_path, 'r') as file_ptr:
         lines = file_ptr.readlines()
     n = len(lines)
     variable_name_list=[]
+    var="context.call_activity"
     i=0
     while i<n:
         line= lines[i]
         if var in line:
-            dl=lines[i+1]
-            # print(dl)
-            variable_regex = r'^\s*([a-zA-Z_]\w*)\s*='
-            variable_match = re.match(variable_regex, dl)
-            variable_name = variable_match.group(1) if variable_match else None
-            variable_name_list.append(variable_name)
-            i += 2
+            # dl=lines[i+1]
+            # # print(dl)
+            # variable_regex = r'^\s*([a-zA-Z_]\w*)\s*='
+            # variable_match = re.match(variable_regex, dl)
+            # variable_name = variable_match.group(1) if variable_match else None
+            # variable_name_list.append(variable_name)
+            # i += 2
+            out,fn_name,inp = extract_var(line)
+            if fn_name in async_fn_name_list:
+                dl=lines[i+1]
+                out1,fn_name1,inp1 = extract_var(dl)
+                variable_name_list.append(out1)
         i +=1
     return variable_name_list
 
@@ -81,8 +87,8 @@ def add_poll(orch_path, async_var_name_list,out_orch_path):
         file_ptr.write(''.join(new_lines))
     os.system(f"autopep8 --in-place {out_orch_path}")
 class async_update:
-    def orchestrator_async_update(in_orchestrator_path,out_orchestrator_path):
-        async_var_name_list = find_var(in_orchestrator_path)
+    def orchestrator_async_update(in_orchestrator_path,out_orchestrator_path,async_func_set):
+        async_var_name_list = find_var(in_orchestrator_path,async_func_set)
         # print("Variable name:", async_var_name_list)
         add_poll(in_orchestrator_path,async_var_name_list,out_orchestrator_path)
 
