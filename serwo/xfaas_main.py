@@ -179,6 +179,8 @@ def add_async_waitXfn(dag_path,user_wf_dir,dag_refractored_path):
     data = json.load(open(dag_path))
     fns_data = data['Nodes']
     async_fn_name_list=set()
+    if len(async_fn_name_list)==0:
+        return
     WaitXSeconds_template_dir= f'{project_dir}/templates/azure/predefined-functions/WaitXSeconds'
     new_WaitXSeconds_template_dir=f'{user_wf_dir}/WaitXSeconds'
     for node in fns_data:
@@ -189,7 +191,7 @@ def add_async_waitXfn(dag_path,user_wf_dir,dag_refractored_path):
         "NodeId": "252",
         "NodeName": "WaitXSeconds",
         "Path": new_WaitXSeconds_template_dir,
-        "EntryPoint": "Sleep.py",
+        "EntryPoint": "WaitXSeconds.py",
         "CSP": "NA",
         "MemoryInMB": 128
     }
