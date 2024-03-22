@@ -74,7 +74,7 @@ def get_user_workflow_details():
     fns_data = data['Nodes']
     return fns_data,data['WorkflowName']
 
-def get_list_of_async_funtions(fns_data):
+def get_set_of_async_funtions(fns_data):
     json_path = user_workflow_directory + '/' + user_dag_file_name
     data = json.load(open(json_path))
     # fns_data = data['Nodes']
@@ -359,7 +359,7 @@ def build(user_dir, dag_definition_file, region, part_id,is_netherite,is_async):
     copy_meta_files(user_fns_data,ingress_queue_name,app_name,is_netherite)
     gen_requirements(user_fns_data)
     re_written_generator(user_fns_data)
-    async_func_set = get_list_of_async_funtions(user_fns_data)
+    async_func_set = get_set_of_async_funtions(user_fns_data)
     orchestrator_generated_path = f"{user_workflow_directory}/orchestrator.py"
     orch_dest_path = f"{az_functions_path}/Orchestrate/__init__.py"
     # if is_async :

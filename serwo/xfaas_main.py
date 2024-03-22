@@ -174,69 +174,70 @@ def add_collect_logs(dag_definition_path,user_wf_dir, xfaas_user_dag,region):
     
     return fin_dict
 
-def add_async_waitXfn(dag_path,user_wf_dir,dag_refractored_path):
+# This Is going to update refractor-dag.json by adding waiting for x sec mechanism. Now we have shifted to another logic
+# def add_async_waitXfn(dag_path,user_wf_dir,dag_refractored_path):
 
-    data = json.load(open(dag_path))
-    fns_data = data['Nodes']
-    async_fn_name_list=set()
+#     data = json.load(open(dag_path))
+#     fns_data = data['Nodes']
+#     async_fn_name_list=set()
     
-    WaitXSeconds_template_dir= f'{project_dir}/templates/azure/predefined-functions/WaitXSeconds'
-    new_WaitXSeconds_template_dir=f'{user_wf_dir}/WaitXSeconds'
-    for node in fns_data:
-        if "IsAsync" in node and node["IsAsync"]:
-            async_fn_name_list.add(node["NodeName"])
+#     WaitXSeconds_template_dir= f'{project_dir}/templates/azure/predefined-functions/WaitXSeconds'
+#     new_WaitXSeconds_template_dir=f'{user_wf_dir}/WaitXSeconds'
+#     for node in fns_data:
+#         if "IsAsync" in node and node["IsAsync"]:
+#             async_fn_name_list.add(node["NodeName"])
     
-    WaitXSeconds_node_dict = {
-        "NodeId": "252",
-        "NodeName": "WaitXSeconds",
-        "Path": new_WaitXSeconds_template_dir,
-        "EntryPoint": "WaitXSeconds.py",
-        "CSP": "NA",
-        "MemoryInMB": 128
-    }
+#     WaitXSeconds_node_dict = {
+#         "NodeId": "252",
+#         "NodeName": "WaitXSeconds",
+#         "Path": new_WaitXSeconds_template_dir,
+#         "EntryPoint": "WaitXSeconds.py",
+#         "CSP": "NA",
+#         "MemoryInMB": 128
+#     }
 
-    # Here we gonna copy our WaitXSeconds template to our build directory
-    try:
-        # Create the new directory if it does not exist
-        if not os.path.exists(new_WaitXSeconds_template_dir):
-            os.makedirs(new_WaitXSeconds_template_dir)
+#     # Here we gonna copy our WaitXSeconds template to our build directory
+#     try:
+#         # Create the new directory if it does not exist
+#         if not os.path.exists(new_WaitXSeconds_template_dir):
+#             os.makedirs(new_WaitXSeconds_template_dir)
 
-        # Copy all files from the current directory to the new directory
-        for filename in os.listdir(WaitXSeconds_template_dir):
-            print("filename to be copied",filename)
-            file_path = os.path.join(WaitXSeconds_template_dir, filename)
-        # Check if it's a file and not a directory
-            if os.path.isfile(file_path):
-                shutil.copy(file_path, new_WaitXSeconds_template_dir)
-    except Exception as e:
-        print(e)
-        print("Not able to copy WaitXSeconds file to directory")
+#         # Copy all files from the current directory to the new directory
+#         for filename in os.listdir(WaitXSeconds_template_dir):
+#             print("filename to be copied",filename)
+#             file_path = os.path.join(WaitXSeconds_template_dir, filename)
+#         # Check if it's a file and not a directory
+#             if os.path.isfile(file_path):
+#                 shutil.copy(file_path, new_WaitXSeconds_template_dir)
+#     except Exception as e:
+#         print(e)
+#         print("Not able to copy WaitXSeconds file to directory")
 
-    node_id_to_check = "252"
-    node_exists = any(node["NodeId"] == node_id_to_check for node in data['Nodes'])
-    # print("node_exists:",node_exists)
-    if len(async_fn_name_list)>0:
-        if not node_exists:
-            data['Nodes'].append(WaitXSeconds_node_dict)
+#     node_id_to_check = "252"
+#     node_exists = any(node["NodeId"] == node_id_to_check for node in data['Nodes'])
+#     # print("node_exists:",node_exists)
+#     if len(async_fn_name_list)>0:
+#         if not node_exists:
+#             data['Nodes'].append(WaitXSeconds_node_dict)
 
-    for set_item in async_fn_name_list:
-        # set_item = c_set_item[1:-1]
-        for node in data['Edges']:
-            # print(node,set_item)
-            if set_item in node:
-                # print("node found")
-                current_edge_data=node[set_item]
-                node[set_item]=["WaitXSeconds"]
-                data['Edges'].append({"WaitXSeconds":current_edge_data})
-        # print(set_item)
-        # print(type(set_item))
+#     for set_item in async_fn_name_list:
+#         # set_item = c_set_item[1:-1]
+#         for node in data['Edges']:
+#             # print(node,set_item)
+#             if set_item in node:
+#                 # print("node found")
+#                 current_edge_data=node[set_item]
+#                 node[set_item]=["WaitXSeconds"]
+#                 data['Edges'].append({"WaitXSeconds":current_edge_data})
+#         # print(set_item)
+#         # print(type(set_item))
             
 
-    #Writing into dag-refractor.json
-    json_string = json.dumps(data, indent=4)    
-    file_path = dag_refractored_path
-    with open(file_path, "w") as json_file:
-        json_file.write(json_string)
+#     #Writing into dag-refractor.json
+#     json_string = json.dumps(data, indent=4)    
+#     file_path = dag_refractored_path
+#     with open(file_path, "w") as json_file:
+#         json_file.write(json_string)
 
 def run(user_wf_dir, dag_definition_file, benchmark_file, csp,region):
     # user_wf_dir += "/workflow-gen"
@@ -251,7 +252,7 @@ def run(user_wf_dir, dag_definition_file, benchmark_file, csp,region):
     wf_id = xfaas_provenance.push_user_dag(dag_definition_path)
     queue_details = add_collect_logs(dag_definition_path,user_wf_dir,xfaas_user_dag,region)
     dag_definition_path = f'{user_wf_dir}/refactored-{dag_definition_file}'
-    add_async_waitXfn(dag_definition_path,user_wf_dir,dag_definition_path)  # print("Added Async update fn ality to dag.json")
+    # add_async_waitXfn(dag_definition_path,user_wf_dir,dag_definition_path)  # print("Added Async update fn ality to dag.json")
     refactored_wf_id = xfaas_provenance.push_refactored_workflow("refactored-dag.json", user_wf_dir, wf_id,csp)
     wf_deployment_id = xfaas_provenance.push_deployment_logs("refactored-dag.json",user_wf_dir,wf_id,refactored_wf_id,csp)
     xfaas_resource_generator.generate(user_wf_dir, dag_definition_path, partition_config,"refactored-dag.json",is_async_flag)
