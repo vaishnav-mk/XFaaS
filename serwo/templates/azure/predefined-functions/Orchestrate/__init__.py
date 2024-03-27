@@ -11,6 +11,7 @@ import uuid
 import cpuinfo
 import random
 import string
+import datetime
 
 
 def generate_random_string(N):
@@ -158,12 +159,14 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
 
     serwoObject = build_serwo_object(inp_dict).to_json()
     # user dag execution
-    heab = yield context.call_activity("TaskA", serwoObject)
-    akgu = yield context.call_activity("TaskB", heab)
-    rybk = yield context.call_activity("TaskC", akgu)
-    rybk = insert_end_stats_in_metadata(rybk)
-    xswh = yield context.call_activity("CollectLogs", rybk)
-    return xswh
+    zoyp = yield context.call_activity("Splitter", serwoObject)
+    yzgo = yield context.call_activity("Transpiler", zoyp)
+    jkja = yield context.call_activity("Submitter", yzgo)
+    iuly = yield context.call_activity("Poller", jkja)
+    srwl = yield context.call_activity("Reconstructor", iuly)
+    srwl = insert_end_stats_in_metadata(srwl)
+    xanh = yield context.call_activity("CollectLogs", srwl)
+    return xanh
 
 
 main = df.Orchestrator.create(orchestrator_function)

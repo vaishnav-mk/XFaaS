@@ -81,7 +81,7 @@ def get_set_of_async_funtions(fns_data):
     set_async_fun=set()
     for node in fns_data:
         if "IsAsync" in node and node["IsAsync"]:
-            set_async_fun.add('"'+node["NodeName"]+'"')
+            set_async_fun.add(node["NodeName"])
     return set_async_fun
 
 def build_user_fn_dirs(user_fns_data):
@@ -362,9 +362,10 @@ def build(user_dir, dag_definition_file, region, part_id,is_netherite,is_async):
     async_func_set = get_set_of_async_funtions(user_fns_data)
     orchestrator_generated_path = f"{user_workflow_directory}/orchestrator.py"
     orch_dest_path = f"{az_functions_path}/Orchestrate/__init__.py"
-    # if is_async :
-    #     print("Orchestrator initial path:",orchestrator_generated_path)
-    #     print("Orchestrator dest path:",orch_dest_path)
+    if is_async :
+        print("Async_Fn_detction",async_func_set)
+        print("Orchestrator initial path:",orchestrator_generated_path)
+        print("Orchestrator dest path:",orch_dest_path)
     async_update.orchestrator_async_update(orchestrator_generated_path,orch_dest_path,async_func_set)
 
 if __name__ == '__main__':

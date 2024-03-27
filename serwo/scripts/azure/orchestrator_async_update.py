@@ -24,74 +24,73 @@ def extract_var(input_str):
     # print("Second Argument:", second_argument)
     return str(variable_name), first_argument, str(second_argument)
 
+def codegen(in_var,out_var,func_name):
+    # new_code ='\n'
+    # new_code ='\n\t'+ out_var +' = '+ in_var
+    # new_code +='\n\twhile True: '
+    # new_code +='\n\t\t' + out_var + ' = ' + 'yield context.call_activity(' + func_name + ','+ out_var +')'
+    # new_code +='\n\t\tbody = unmarshall(json.load(' + out_var + ')).get_body() ' 
+    # new_code +='\n\t\tif "results" in body["data"]: '
+    # new_code +='\n\t\t\tbreak '
+    # new_code +='\n\t\tdeadline = context.current_utc_datetime + timedelta(miniutes=15) '
+    # new_code +='\n\t\tyield context.create_timer(deadline)\n\n'
+    new_code ='\n'
+    new_code ='\n\t'+ out_var +' = '+ in_var
+    new_code +='\n\twhile True: '
+    new_code +='\n\t' + out_var + ' = ' + 'yield context.call_activity(' + func_name + ','+ out_var +')'
+    new_code +='\n\tbody = unmarshall(json.load(' + out_var + ')).get_body() ' 
+    new_code +='\n\tif "results" in body["data"]: '
+    new_code +='\n\t\tbreak '
+    new_code +='\n\tdeadline = context.current_utc_datetime + timedelta(miniutes=15) '
+    new_code +='\n\tyield context.create_timer(deadline)\n\n'
+    return new_code
+
 def find_var(orch_path,async_fn_name_list):
+    print("Async Fn list",async_fn_name_list)
     with open(orch_path, 'r') as file_ptr:
         lines = file_ptr.readlines()
-    n = len(lines)
-    variable_name_list=[]
-    var="context.call_activity"
-    i=0
-    while i<n:
-        line= lines[i]
-        if var in line:
-            # dl=lines[i+1]
-            # # print(dl)
-            # variable_regex = r'^\s*([a-zA-Z_]\w*)\s*='
-            # variable_match = re.match(variable_regex, dl)
-            # variable_name = variable_match.group(1) if variable_match else None
-            # variable_name_list.append(variable_name)
-            # i += 2
-            out,fn_name,inp = extract_var(line)
-            if fn_name in async_fn_name_list:
-                dl=lines[i+1]
-                out1,fn_name1,inp1 = extract_var(dl)
-                variable_name_list.append(out1)
-        i +=1
-    return variable_name_list
+    var_set=set()
+    str= "context.call_activity"
+    for line in lines:
+        if str in line:
+            a,fn,b= extract_var(line)
+            fn=fn[1:-1]
+            if fn in async_fn_name_list:
+                # print("Extracted variables",a,fn,b)
+                var_set.add(a)
 
+    return var_set
 
-def add_poll(orch_path, async_var_name_list,out_orch_path):
-    with open(orch_path, 'r') as file_ptr:
-        lines = file_ptr.readlines()
-
-    found_var = False
-    x=True
-    new_lines = []
-    list_ptr = 0
-    list_size = len(async_var_name_list)
-    total_lines = len(lines)
-    i = 0
-    while i<total_lines:
-        if list_ptr<list_size and async_var_name_list[list_ptr] in lines[i] :
-            var1, func1_name, func1_inp = extract_var(lines[i])
-            func2_op, func2_name, var1 = extract_var(lines[i+1])
-            new_code= '\n\t'+ func2_op +' = '+ func1_inp
-            new_code += '\n\twhile True:'
-            new_code +='\n\t\t' + var1 + ' = ' + 'yield context.call_activity(' + func1_name + ','+ func2_op +')'
-            new_code +='\n\t\t' + func2_op + ' = ' + 'yield context.call_activity(' + func2_name + ','+ var1 +')'
-            new_code +='\n\t\t' + 'if checkPoll(' + func2_op + '):'
-            new_code +='\n\t\t\tbreak\n\n'
-            # print("New code:",new_code) 
-            new_lines.append(new_code)
-            i+=1
-            list_ptr+=1
-        else:
-            if "def orchestrator_function" in lines[i]:
-                new_code ='def checkPoll(obj):\n\tbody=unmarshall(json.loads(obj)).get_body()\n\treturn True if body["Poll"] == "Yes" else False\n'
-                new_lines.append(new_code)
-            new_lines.append(lines[i])
-        i += 1
-    # print("New_lines:",new_lines)
-    # Write the modified content back to the file
-    with open(out_orch_path, 'w') as file_ptr:
-        file_ptr.write(''.join(new_lines))
-    os.system(f"autopep8 --in-place {out_orch_path}")
 class async_update:
     def orchestrator_async_update(in_orchestrator_path,out_orchestrator_path,async_func_set):
-        async_var_name_list = find_var(in_orchestrator_path,async_func_set)
-        # print("Variable name:", async_var_name_list)
-        add_poll(in_orchestrator_path,async_var_name_list,out_orchestrator_path)
+        
+        var_list=find_var(in_orchestrator_path,async_func_set)
+        print("Var list:",var_list)
+        with open(in_orchestrator_path, 'r') as file_ptr:
+            lines = file_ptr.readlines()
 
+        new_lines = []
+        for line in lines:
+            if 'context.call_activity' in line:
+                a,b,c= extract_var(line)
+                if c in var_list:
+                    new_code=codegen(c,a,b)
+                    print(new_code)
+                    new_lines.append(new_code)
+                else:
+                    new_lines.append(line)    
+            else:
+                new_lines.append(line)
+        # print(new_lines)
+        with open(out_orchestrator_path, 'w') as file_ptr:
+            for line in new_lines:
+                file_ptr.write("".join(line))
+        os.system(f"autopep8 --in-place {out_orchestrator_path}")
+        # os.system(f"autopep8 --in-place {out_orchestrator_path}")
+                
 # input_path='/home/tarun/Azure/ip_orchestrtor.py'
 # output_path='/home/tarun/Azure/out_orch.py'
-# orchestrator_update.orchestrator_async_update(input_path,output_path)
+# async_update.orchestrator_async_update(input_path,output_path,{"WaitXSeconds"})
+
+
+    
