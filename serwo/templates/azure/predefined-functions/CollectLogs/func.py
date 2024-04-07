@@ -19,9 +19,9 @@ def user_function(serwoObject) -> SerWOObject:
         metadata = serwoObject.get_metadata()
         fin_dict["data"] = data
         fin_dict["metadata"] = metadata
-        logging.info("Fin dict - ", fin_dict)
+        logging.info("Fin dict - "+str(fin_dict))
         queue.send_message(json.dumps(fin_dict))
         # data = {"body": "success: OK"}
-        return SerWOObject(body=data)
+        return SerWOObject(body=serwoObject.get_body())
     except Exception as e:
         return SerWOObject(error=True)
