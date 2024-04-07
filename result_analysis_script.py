@@ -127,7 +127,7 @@ def data_analysis(url_list):
         total_workflow_exec_time=(end_timestamp-start_timestamp)/1000
         waiting_time=(total_workflow_exec_time-max_time)
         total_cost=df['cost'].sum()
-        print('For workflow:\t', workflow_name,'\n\t InstanceId:\t',instance_id ,'\n\t\tTotal workflow execution time:\t',total_workflow_exec_time , ' seconds\n\t\tTotal exec time(as per critical path):\t',max_time,' seconds\n\t\tTotal waiting time(as per critical path):\t',waiting_time,' seconds\n\t\tCritical Path:\t',critical_path,'\b\b\n\t\tTotal Cost: \t$ ',total_cost)
+        print('For workflow:\t', workflow_name,'\n\t InstanceId:\t',instance_id ,'\n\t\tTotal workflow execution time:\t',total_workflow_exec_time , ' seconds\n\t\tTotal funtion exec time(as per critical path):\t',max_time,' seconds\n\t\tTotal waiting time(as per critical path):\t',waiting_time,' seconds\n\t\tCritical Path:\t',critical_path,'\b\b\n\t\tTotal Cost: \t$ ',total_cost)
         
 
         # print(result_list)
@@ -164,8 +164,8 @@ def data_analysis(url_list):
 
 
 
-
-url_list=[("https://xfaasibmparallelsimulator12480876.azurewebsites.net/runtime/webhooks/durabletask/instances/80b259f3b67f418589c481e6e2bb7919?taskHub=xfaasIBMParallelSimulator12480876&connection=Storage&code=uJleO1hkph_cDLcNLpD7U-aZzQg5Y96woPUqL1f9O4FRAzFu4FIBFw==",'/home/tarun/XFaaS/serwo/examples/SerialSimulator/refactored-dag.json'),('https://xfaasibmparallelsimulator12480876.azurewebsites.net/runtime/webhooks/durabletask/instances/f93f6c87acd74da89a34eb1cbebc82a8?taskHub=xfaasIBMParallelSimulator12480876&connection=Storage&code=uJleO1hkph_cDLcNLpD7U-aZzQg5Y96woPUqL1f9O4FRAzFu4FIBFw==','/home/tarun/XFaaS/serwo/examples/ParallelSimulator12/refactored-dag.json')]
+#In the url list just pass url_list=[(http_trigger_url_path,refractor.json_path),...]
+url_list=[('https://xfaasibmparallelsimulator12480876.azurewebsites.net/runtime/webhooks/durabletask/instances/f93f6c87acd74da89a34eb1cbebc82a8?taskHub=xfaasIBMParallelSimulator12480876&connection=Storage&code=uJleO1hkph_cDLcNLpD7U-aZzQg5Y96woPUqL1f9O4FRAzFu4FIBFw==','serwo/examples/ParallelSimulator12/refactored-dag.json'),('https://xfaasibmparallelsimulator12480876.azurewebsites.net/runtime/webhooks/durabletask/instances/80b259f3b67f418589c481e6e2bb7919?taskHub=xfaasIBMParallelSimulator12480876&connection=Storage&code=uJleO1hkph_cDLcNLpD7U-aZzQg5Y96woPUqL1f9O4FRAzFu4FIBFw==','serwo/examples/ParallelSimulator12/refactored-dag.json'),('https://xfaasibmparallelsimulator12480876.azurewebsites.net/runtime/webhooks/durabletask/instances/600788a5786f4dd79ee4e8e2c9eb6726?taskHub=xfaasIBMParallelSimulator12480876&connection=Storage&code=uJleO1hkph_cDLcNLpD7U-aZzQg5Y96woPUqL1f9O4FRAzFu4FIBFw==','serwo/examples/ParallelSimulator12/refactored-dag.json')]
 
 
 data_analysis(url_list)
