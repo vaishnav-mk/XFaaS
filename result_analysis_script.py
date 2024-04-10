@@ -84,7 +84,20 @@ class result_analysis:
         for url,wf_path in url_list:
             out,instance_id=creating_outobject(url)
             df = pd.DataFrame.from_dict(out).set_index('NodeId')
-            dag_path=wf_path+'/refactored-dag.json'
+            df_grouped = df.groupby('NodeId').agg({
+    'start_delta': 'min',
+    'end_delta': 'max',
+    'mem_before': 'min',
+    'mem_after': 'max',
+    'net_time': 'sum',
+    'net_mem': 'sum',
+    'cost': 'sum'
+})
+            df=df_grouped
+            # print(df)
+            # print(df_grouped)
+            # dag_path=wf_path+'/'
+            dag_path=os.path.join(wf_path,'refactored-dag.json')
             with open(dag_path, 'r') as file:
                 data = json.load(file)
 
@@ -184,6 +197,5 @@ class result_analysis:
             #     df.to_excel(writer, sheet_name=sheet_name, index=True)
 
         print("Results stored sucessfully.")
-
 
 
