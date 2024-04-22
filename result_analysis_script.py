@@ -6,7 +6,7 @@ import os
 
 
 
-cost_factor  =0.000016
+cost_factor  = 0.000016
 
 def read_dictionary_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -40,8 +40,8 @@ def creating_outobject(url):
             end_delta = obj['end_delta']
             mem_before=obj['mem_before']
             mem_after = obj['mem_after']
-            net_time=end_delta-start_delta
-            net_mem=mem_after-mem_before
+            net_time=abs(end_delta-start_delta)
+            net_mem=abs(mem_after-mem_before)
             temp={
                 'NodeId':fn_name,
                 'start_delta':start_delta,
@@ -72,7 +72,7 @@ def custom_dfs(graph, node, dataframe,result_list, node_to_nodeid,path="",ntime=
     for neighbor in neighbors:
         custom_dfs(graph, neighbor, dataframe, result_list,node_to_nodeid,path, ntime,cost)
 
-    if node == 'CollectLogs':
+    if len(neighbors)==0:
         result_list.append((path, (ntime,cost)))
         # print("We are in last node")
         return [(path, ntime,cost)]
@@ -93,11 +93,11 @@ class result_analysis:
     'net_mem': 'sum',
     'cost': 'sum'
 })
+            print(df)
             df=df_grouped
-            # print(df)
-            # print(df_grouped)
+            print(df_grouped)
             # dag_path=wf_path+'/'
-            dag_path=os.path.join(wf_path,'refactored-dag.json')
+            dag_path=os.path.join(wf_path,'dag.json')
             with open(dag_path, 'r') as file:
                 data = json.load(file)
 
@@ -162,7 +162,7 @@ class result_analysis:
                 print("Path:",path,'\tTotal exec time:',time,'sec\tTotal waiting time:',total_workflow_exec_time-time,"sec")
                 results["PathResults"].append(out)
 
-            result_dir = wf_path + '/results'
+            result_dir = wf_path + '/Results'
             if not os.path.exists(result_dir):
                 os.makedirs(result_dir)
             json_file_path = os.path.join(result_dir, f'{instance_id}.json')
