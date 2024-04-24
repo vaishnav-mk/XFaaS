@@ -65,8 +65,8 @@ def add_collect_logs(dag_definition_path,user_wf_dir, xfaas_user_dag,region):
         region = 'eastus'
     elif region == 'ap-southeast-1':
         region = 'southeastasia'
-    
-    # region = 'centralindia'
+    else:
+        region = 'centralindia'
     
     collect_logs_dir = f'{project_dir}/templates/azure/predefined-functions/CollectLogs'
     new_collect_logs_dir = f'{user_wf_dir}/CollectLogs'

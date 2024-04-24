@@ -11,7 +11,6 @@ import logging
 import os
 import psutil
 import objsize
-import cpuinfo
 # from USER_FUNCTION_PLACEHOLDER import function as USER_FUNCTION_PLACEHOLDER_function - NOTE - !!! TK - STANDARDISE THIS!!! IMPORTANT
 from USER_FUNCTION_PLACEHOLDER import user_function as USER_FUNCTION_PLACEHOLDER_function
 from copy import deepcopy
