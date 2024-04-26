@@ -6,6 +6,8 @@ import shutil
 import traceback
 from jinja2 import Environment, FileSystemLoader
 import json
+import copy
+import logging
 # Serwo imports
 import python.src.utils.generators.aws.sfn_yaml_generator as AWSSfnYamlGenerator
 import python.src.utils.generators.aws.sfn_asl_generator as AWSSfnAslBuilder
@@ -306,8 +308,7 @@ class AWS:
             logger.info(
                 f"Deleting Temporary Runner Template at {runner_template_filepath}"
             )
-            os.remove(f"{runner_template_filepath}")
-
+            os.remove(f"{runner_template_filepath}")   
     def __generate_asl_template(self):
         function_metadata_list = self.__user_dag.get_node_param_list()
         function_object_map = self.__user_dag.get_node_object_map()
@@ -330,10 +331,28 @@ class AWS:
             exit()
 
         logger.info("Building Statemachines JSON..")
-        AWSSfnAslBuilder.generate_statemachine_json(
+        sfn_json=AWSSfnAslBuilder.generate_statemachine_json(
             statemachine_structure, self.__aws_build_dir, self.__json_file
         )
+        dag_json=self.__user_dag.get_user_dag_nodes()
+        list_async_fns= get_set_of_async_funtions(dag_json)
+        print("List of Async Fns:",list_async_fns)
+        changing_fns=set()
+        for node_name in list_async_fns:
+            successors = self.__user_dag.get_successor_node_names(node_name)
+            for fn_name in successors:
+                changing_fns.add(fn_name)
 
+        print("Set of changing funtions:",changing_fns)
+        changing_fns_list=list(changing_fns)
+        print("List of changing funtions:",changing_fns_list)
+        # Statemachine.asl.josn should be changed here
+        sfn_json_copy = copy.deepcopy(json.loads(sfn_json))
+        data=add_async_afn_builder(sfn_json_copy,changing_fns_list)
+        print("Updated data of sfn builder after adding poll",data)
+        with open(f"{self.__aws_build_dir}/{self.__json_file}", "w") as statemachinejson:
+            statemachinejson.write(json.dumps(data))
+        print("sucessfully written data into the file")
     """
     NOTE - build function
     """
@@ -422,3 +441,40 @@ class AWS:
             json.dump(data, f, indent=4)
 
         return self.__outputs_filepath
+
+def add_async_afn_builder(data,list):
+
+    for i in range(0,len(list)):
+        fn_name=list[i]
+        poll_next=data["States"][fn_name]['Next']
+        checkPollcondition='CheckPollCondition'+str(i)
+        waitstate='WaitState'+str(i)
+        data["States"][fn_name]['Next']=checkPollcondition
+        data[checkPollcondition]={
+                "Type": "Choice",
+                "Choices": [
+                    {
+                        "Variable": "$.body.Poll",
+                        "BooleanEquals": False,
+                        "Next": poll_next
+                    }
+                ],
+                "Default": waitstate
+            }
+        data[waitstate]={
+                "Type": "Wait",
+                "Seconds": 900,
+                "Next": fn_name
+            }
+    return data
+
+
+def get_set_of_async_funtions(fns_data):
+    print("Funtions data:",(fns_data))
+    # fns_data=json.loads(fns_data)
+    list_async_fun=[]
+    for node in fns_data:
+        if "IsAsync" in node and node["IsAsync"]:
+            node_name=node["NodeName"]
+            list_async_fun.append(node_name)
+    return list_async_fun

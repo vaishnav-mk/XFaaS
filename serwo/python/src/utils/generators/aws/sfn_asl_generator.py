@@ -8,3 +8,4 @@ def generate_statemachine_json(statemachine_structure, output_dir, output_file):
     # write to output directory
     with open(f"{output_dir}/{output_file}", "w") as statemachinejson:
         statemachinejson.write(sfn_json)
+    return sfn_json

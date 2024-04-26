@@ -75,8 +75,8 @@ def get_user_workflow_details():
     return fns_data,data['WorkflowName']
 
 def get_set_of_async_funtions(fns_data):
-    json_path = user_workflow_directory + '/' + user_dag_file_name
-    data = json.load(open(json_path))
+    # json_path = user_workflow_directory + '/' + user_dag_file_name
+    # data = json.load(open(json_path))
     # fns_data = data['Nodes']
     set_async_fun=set()
     for node in fns_data:
