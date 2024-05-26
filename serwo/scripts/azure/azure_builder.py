@@ -347,7 +347,7 @@ def generate_app_name_and_populate_and_get_ingress_queue_name(user_app_name,regi
     return data['queue_name'],data['app_name']
 
 
-def build(user_dir, dag_definition_file, region, part_id,is_netherite,is_async):
+def build(user_dir, dag_definition_file, region, part_id,is_netherite):
     global USER_DIR,DAG_DEFINITION_FILE
     USER_DIR = user_dir
     DAG_DEFINITION_FILE = dag_definition_file
@@ -362,10 +362,9 @@ def build(user_dir, dag_definition_file, region, part_id,is_netherite,is_async):
     async_func_set = get_set_of_async_funtions(user_fns_data)
     orchestrator_generated_path = f"{user_workflow_directory}/orchestrator.py"
     orch_dest_path = f"{az_functions_path}/Orchestrate/__init__.py"
-    if is_async :
-        print("Async_Fn_detction",async_func_set)
-        print("Orchestrator initial path:",orchestrator_generated_path)
-        print("Orchestrator dest path:",orch_dest_path)
+    print("Async_Fn_detction",async_func_set)
+    print("Orchestrator initial path:",orchestrator_generated_path)
+    print("Orchestrator dest path:",orch_dest_path)
     async_update.orchestrator_async_update(orchestrator_generated_path,orch_dest_path,async_func_set)
 
 if __name__ == '__main__':
