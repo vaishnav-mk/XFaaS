@@ -16,9 +16,10 @@ Outputs:
   {{stepfunctionrolearn}}:
     Description: "IAM Role created for Serwo CLI State machine based on the specified SAM Policy Templates"
     Value: !GetAtt {{stepfunctionrolearn_attribute}}
-  # ExecuteApi:
-  #   Description: "Execute API endpoint"
-  #   Value: !Sub "https://${ExecuteAPIForWF}.execute-api.${AWS::Region}.amazonaws.com/serwo"
+  ## Output API ##
+  ExecuteApi:
+    Description: "Execute API endpoint"
+    Value: !Sub "https://${ExecuteAPIForWF}.execute-api.${AWS::Region}.amazonaws.com/serwo"
 Resources:
   {{stepfunctionname}}:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -47,6 +48,59 @@ Resources:
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./functions/{{function.name}}
-      DockerTag: python3.10-v1
+      DockerTag: python3.9-v1
 
   {% endfor %}
+
+##########################################################################
+#   REST API                                                             #
+##########################################################################
+  ExecuteAPIForWF:
+     Type: AWS::Serverless::Api
+     Properties:
+        StageName: serwo
+        DefinitionBody: # an OpenApi definition
+          'Fn::Transform':
+            Name: 'AWS::Include'
+            Parameters:
+              Location: {{apifilename}}
+        OpenApiVersion: 3.0.3
+        EndpointConfiguration:
+            Type: REGIONAL
+
+##########################################################################
+#   Roles                                                               #
+##########################################################################
+  ExecuteApiRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+      - PolicyName: AllowSFNExec
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: "states:StartExecution"
+              Resource: !GetAtt {{stepfunctionsarnatrribute}}
+
+  # {% for function in functions -%}
+  # {{function.name}}:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: {{ function.uri }}
+  #     Handler: {{ function.handler }}
+  #     Runtime: python3.10
+  #     MemorySize: {{ function.memory }}
+  #     Timeout: 300
+  #     Architectures:
+  #       - x86_64
+  # {% endfor %}

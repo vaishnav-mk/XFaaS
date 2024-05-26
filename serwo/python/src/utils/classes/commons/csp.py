@@ -15,12 +15,12 @@ class CSP:
 
 
     #TODO: Factory pattern for csp
-    def build_resources(self,user_dir, dag_definition_path, region, part_id, dag_definition_file, is_netherite):
+    def build_resources(self,user_dir, dag_definition_path, region, part_id, dag_definition_file, is_netherite,is_containerbasedaws):
         if self.__name == 'azure':
             self.build_az(dag_definition_file, dag_definition_path, part_id, region, user_dir, is_netherite)
         if self.__name == 'aws':
-            aws_deployer = AWS(user_dir, dag_definition_file, "REST", part_id, region)
-            aws_deployer.build_resources()
+            aws_deployer = AWS(user_dir, dag_definition_file, "REST", part_id, region, is_containerbasedaws)
+            aws_deployer.build_resources(is_containerbased_aws=is_containerbasedaws)
             aws_deployer.build_workflow()
             aws_deployer.deploy_workflow()
             pass

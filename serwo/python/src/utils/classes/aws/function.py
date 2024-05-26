@@ -5,12 +5,13 @@ class Function:
         self._arn = name + "Arn"
         self._ref = "!GetAtt " + name + ".Arn"
         self._path = path
-        self._runner_filename = "standalone_" + end_point.split(".")[0] + "_runner"
+        self._runner_filename = "standalone_app_runner"
         self._handler = self._runner_filename + ".lambda_handler"
         self._uri = "functions/" + name
         self._module_name = end_point.split(".")[0]
         self._memory = memory
         # TODO - add function id
+        self._isasync = False
 
     def get_id(self):
         return self._id
@@ -46,3 +47,9 @@ class Function:
 
     def get_memory_in_mb(self):
         return self._memory
+
+    def set_isasync(self):
+        self._isasync = True
+    
+    def get_isasync(self):
+        return self._isasync

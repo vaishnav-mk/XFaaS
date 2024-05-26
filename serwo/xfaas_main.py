@@ -31,12 +31,13 @@ parser.add_argument("--wf-user-directory",dest='wf_user_directory',type=str,help
 parser.add_argument("--dag-benchmark",dest='dag_benchmark',type=str,help="Path DAG Benchmark")
 parser.add_argument("--dag-file-name",dest='dag_filename',type=str,help="DAG FILE NAME")
 parser.add_argument("--is-async",dest='is_async',type=str,help="Is Async Fn",default=0)
+parser.add_argument("--is-containerbased-aws",dest='is_containerbasedaws',type=str,help="Is Async Fn",default=1)
 project_dir = pathlib.Path(__file__).parent.resolve()
 
 
 args = parser.parse_args()
     
-is_async_flag = bool(int(args.is_async))
+is_containerbasedaws = bool(int(args.is_containerbasedaws))
 USER_DIR = args.wf_user_directory
 DAG_DEFINITION_FILE =  args.dag_filename
 
@@ -255,7 +256,7 @@ def run(user_wf_dir, dag_definition_file, benchmark_file, csp,region):
     # add_async_waitXfn(dag_definition_path,user_wf_dir,dag_definition_path)  # print("Added Async update fn ality to dag.json")
     refactored_wf_id = xfaas_provenance.push_refactored_workflow("refactored-dag.json", user_wf_dir, wf_id,csp)
     wf_deployment_id = xfaas_provenance.push_deployment_logs("refactored-dag.json",user_wf_dir,wf_id,refactored_wf_id,csp)
-    xfaas_resource_generator.generate(user_wf_dir, dag_definition_path, partition_config,"refactored-dag.json")
+    xfaas_resource_generator.generate(user_wf_dir, dag_definition_path, partition_config,"refactored-dag.json",is_containerbasedaws)
     xfaas_provenance.generate_provenance_artifacts(user_wf_dir,wf_id,refactored_wf_id,wf_deployment_id,csp,region,part_id,queue_details)
 
     return wf_id, refactored_wf_id, wf_deployment_id

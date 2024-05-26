@@ -34,8 +34,13 @@ class UserDag:
                 node["NodeName"],
                 node["Path"],
                 node["EntryPoint"],
-                node["MemoryInMB"],
+                node["MemoryInMB"]
             )
+
+            print("NodeKeys -", list(node.keys()))
+            if "IsAsync" in node and node["IsAsync"]:
+                self.__functions[node["NodeName"]].set_isasync()
+
             self.__dag.add_node(
                 nodeID,
                 NodeName=node["NodeName"],
@@ -241,7 +246,6 @@ class UserDag:
             tasklist = output_dag.nodes[node]["machine_list"]
 
         return tasklist
-    
     def get_successor_node_names(self, node_name):
         # Get the node ID corresponding to the given node name
         node_id = self.__nodeIDMap.get(node_name)
@@ -270,3 +274,5 @@ class UserDag:
         return self.__dag_config_data["Nodes"]
     def get_user_dag_edges(self):
         return self.__dag_config_data["Edges"]
+    def get_dag(self):
+        return self.__dag
