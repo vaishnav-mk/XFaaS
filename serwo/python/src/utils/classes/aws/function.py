@@ -12,6 +12,7 @@ class Function:
         self._memory = memory
         # TODO - add function id
         self._isasync = False
+        self._iscontainerised=False
 
     def get_id(self):
         return self._id
@@ -40,6 +41,7 @@ class Function:
             "uri": self._uri,
             "handler": self._handler,
             "memory": self._memory,
+            "iscontainer": self._iscontainerised,
         }
 
     def get_runner_filename(self):
@@ -53,3 +55,8 @@ class Function:
     
     def get_isasync(self):
         return self._isasync
+    
+    def set_iscontainerised(self):
+        self._iscontainerised =True
+    def get_iscontainerised(self):
+        return self._iscontainerised 

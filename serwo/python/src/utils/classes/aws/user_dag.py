@@ -40,6 +40,8 @@ class UserDag:
             print("NodeKeys -", list(node.keys()))
             if "IsAsync" in node and node["IsAsync"]:
                 self.__functions[node["NodeName"]].set_isasync()
+            if "IsContainerised" in node and node["IsContainerised"]:
+                self.__functions[node["NodeName"]].set_iscontainerised()
 
             self.__dag.add_node(
                 nodeID,

@@ -253,7 +253,7 @@ def copy_all_dirs(fn_dir_path,fin_func_dir):
                 path = f'{fn_dir_path}/{dir}'
                 fr.f_and_r(path,f'{fin_func_dir}/func.py',str_find,str_replace)
 
-        if '.py' not in dir and 'samples'!=dir:
+        if '.py' not in dir and 'samples'!=dir and dir!='Dockerfile':
             if not os.path.exists(fin_func_dir+'/'+dir):
                 final_path = fn_dir_path+'/'+dir
                 ## if final_path is a directory

@@ -78,6 +78,19 @@ Resources:
 
   {% for function in functions -%}
   {{function.name}}:
+    {% if function.iscontainer %}
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Timeout: 600
+      MemorySize: {{function.memory}}
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./functions/{{function.name}}
+      DockerTag: python3.9-v1
+    {% else %}
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: {{ function.uri }}
@@ -87,4 +100,5 @@ Resources:
       Timeout: 300
       Architectures:
         - x86_64
+    {% endif%}
   {% endfor %}

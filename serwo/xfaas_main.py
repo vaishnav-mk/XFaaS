@@ -31,7 +31,7 @@ parser.add_argument("--wf-user-directory",dest='wf_user_directory',type=str,help
 parser.add_argument("--dag-benchmark",dest='dag_benchmark',type=str,help="Path DAG Benchmark")
 parser.add_argument("--dag-file-name",dest='dag_filename',type=str,help="DAG FILE NAME")
 parser.add_argument("--is-async",dest='is_async',type=str,help="Is Async Fn",default=0)
-parser.add_argument("--is-containerbased-aws",dest='is_containerbasedaws',type=str,help="Is Async Fn",default=1)
+parser.add_argument("--is-containerbased-aws",dest='is_containerbasedaws',type=str,help="Is Async Fn",default=0)
 project_dir = pathlib.Path(__file__).parent.resolve()
 
 
