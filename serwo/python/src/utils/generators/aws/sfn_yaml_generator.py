@@ -25,8 +25,7 @@ def generate_sfn_yaml(
     template_dir: str,
     output_dir: str,
     yaml_file: str,
-    trigger_type: TriggerType,
-    is_containerbased: bool
+    trigger_type: TriggerType
 ) -> None:
     # function resource strings
     

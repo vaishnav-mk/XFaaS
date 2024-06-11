@@ -27,7 +27,7 @@ class AWS:
     Constructor
     """
 
-    def __init__(self, user_dir, dag_desc_filename, trigger_type, part_id, region, is_containerbased):
+    def __init__(self, user_dir, dag_desc_filename, trigger_type, part_id, region):
         # populating these from external modules
         # TODO - parameterize the region as well (hardcoded for now)
         self.__region = region
@@ -74,7 +74,7 @@ class AWS:
         self.__outputs_filepath = (
             self.__serwo_resources_dir / f"aws-{self.__region}-{self.__part_id}.json"
         )
-        self.__is_containerbased = is_containerbased
+        # self.__is_containerbased = is_containerbased
 
     """
     NOTE - This is a replacement for the create_env.sh file
@@ -119,8 +119,7 @@ class AWS:
         fn_module_name,
         runner_template_filename,
         runner_template_dir,
-        runner_filename,
-        is_containerbased_aws
+        runner_filename
     ):
         # TODO - should this be taken in from the dag-description?
         fn_requirements_filename = "requirements.txt"
@@ -138,8 +137,8 @@ class AWS:
         logger.info(f"Moving requirements file for {fn_name} for user at to {fn_dir}")
         shutil.copyfile(src=f"{user_fn_path / fn_requirements_filename}", dst=f"{fn_dir / fn_requirements_filename}")
 
-        if is_containerbased_aws:
-            shutil.copyfile(src=f"{user_fn_path}/Dockerfile", dst=f"{fn_dir}/Dockerfile")
+        # if is_containerbased_aws:
+        #     shutil.copyfile(src=f"{user_fn_path}/Dockerfile", dst=f"{fn_dir}/Dockerfile")
 
         # Add the XFaaS specific requrirements on to the function requirements
         logger.info(
@@ -271,7 +270,7 @@ class AWS:
     Create standalone runner templates
     """
 
-    def __create_standalone_runners(self, xfaas_fn_build_dir, is_containerbased_aws):
+    def __create_standalone_runners(self, xfaas_fn_build_dir):
         function_metadata_list = self.__user_dag.get_node_param_list()
         function_object_map = self.__user_dag.get_node_object_map()
 
@@ -308,8 +307,7 @@ class AWS:
                 function_runner_filename,
                 self.__runner_template_dir,
                 # self.__serwo_utils_dir,
-                runner_template_filename,
-                is_containerbased_aws
+                runner_template_filename
             )
 
             runner_template_filepath = (
@@ -334,8 +332,7 @@ class AWS:
                 self.__yaml_template_dir,
                 self.__aws_build_dir,
                 self.__yaml_file,
-                self.__trigger_type,
-                self.__is_containerbased
+                self.__trigger_type
             )
         except Exception as e:
             logger.error(e)
@@ -372,14 +369,14 @@ class AWS:
     NOTE - build function
     """
 
-    def build_resources(self, is_containerbased_aws):
+    def build_resources(self):
         logger.info(f"Creating environment for {self.__user_dag.get_user_dag_name()}")
         xfaas_fn_build_dir = self.__create_environment() 
 
         logger.info(
             f"Initating standalone runner creation for {self.__user_dag.get_user_dag_name()}"
         )
-        self.__create_standalone_runners(xfaas_fn_build_dir, is_containerbased_aws)
+        self.__create_standalone_runners(xfaas_fn_build_dir)
 
         logger.info(
             f"Generating ASL templates for {self.__user_dag.get_user_dag_name()}, \
