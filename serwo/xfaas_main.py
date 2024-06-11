@@ -104,8 +104,10 @@ def add_collect_logs(dag_definition_path,user_wf_dir, xfaas_user_dag,region):
         print(e)
 
     try:
-        queue_service_client = QueueServiceClient(account_url=f"https://{storage_account_name}.queue.core.windows.net", credential=credential)
-        queue_service_client.create_queue(queue_name)
+        # queue_service_client = QueueServiceClient(account_url=f"https://{storage_account_name}.queue.core.windows.net", credential=credential)
+        # queue_service_client.create_queue(queue_name)
+        queue_creation_command=f"az storage queue create -n {queue_name} --account-name {storage_account_name}"
+        os.system(queue_creation_command)
     except Exception as e:
         print(e)
 
