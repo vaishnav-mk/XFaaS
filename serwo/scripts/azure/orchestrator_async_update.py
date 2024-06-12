@@ -39,7 +39,7 @@ def codegen(in_var,out_var,func_name):
     new_code +='\n\twhile True: '
     new_code +='\n\t' + out_var + ' = ' + 'yield context.call_activity(' + func_name + ','+ out_var +')'
     new_code +='\n\tbody = unmarshall(json.loads(' + out_var + ')).get_body() ' 
-    new_code +='\n\tif not body["Poll"]: '
+    new_code +='\n\tif not body["Poll"] or body["Poll"]==False: '
     new_code +='\n\t\tbreak '
     new_code +='\n\telse:'
     new_code +='\n\t\tdeadline = context.current_utc_datetime + timedelta(seconds=900) '
