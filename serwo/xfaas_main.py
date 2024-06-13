@@ -108,8 +108,16 @@ def add_collect_logs(dag_definition_path,user_wf_dir, xfaas_user_dag,region):
     try:
         # queue_service_client = QueueServiceClient(account_url=f"https://{storage_account_name}.queue.core.windows.net", credential=credential)
         # queue_service_client.create_queue(queue_name)
-        queue_creation_command=f"az storage queue create -n {queue_name} --account-name {storage_account_name}"
-        os.system(queue_creation_command)
+        if csp == "azure":
+            queue_creation_command = f"az storage queue create -n {queue_name} --account-name {storage_account_name}"
+            os.system(queue_creation_command)
+        elif csp == "aws":
+            queue_creation_command = f"aws sqs create-queue --queue-name {queue_name}"
+            stream = os.popen(queue_creation_command)
+            output = stream.read()
+            stream.close()
+            queue_url = json.loads(output)["QueueUrl"]
+            print("queue created")
     except Exception as e:
         print(e)
 
@@ -129,15 +137,24 @@ def add_collect_logs(dag_definition_path,user_wf_dir, xfaas_user_dag,region):
 
     os.system(f'cp -r {collect_logs_dir} {user_wf_dir}')
     
-    connection_string_template = 'CONNECTION_STRING'
-    queue_name_template = 'QUEUE_NAME'
+    connection_string_template = "CONNECTION_STRING"
+    queue_name_template = "QUEUE_NAME"
+    coll_csp_template = "COLL_CSP"
     
     ##open the file and replace the connection string and queue name
     with open(f'{new_collect_logs_dir}/func.py', 'r') as file :
         filedata = file.read()
     
-    filedata = filedata.replace(connection_string_template, fin_dict['connection_string'])
-    filedata = filedata.replace(queue_name_template, fin_dict['queue_name'])
+    if csp == "aws":
+        filedata = filedata.replace(
+            connection_string_template, queue_url
+        )
+    elif csp == "azure":
+        filedata = filedata.replace(
+            connection_string_template, fin_dict["connection_string"]
+        )
+    filedata = filedata.replace(queue_name_template, fin_dict["queue_name"])
+    filedata = filedata.replace(coll_csp_template, csp.lower())
 
     with open(f'{new_collect_logs_dir}/func.py', 'w') as file:
         file.write(filedata)

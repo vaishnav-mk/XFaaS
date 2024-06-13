@@ -36,7 +36,7 @@ Resources:
             FunctionName: !Ref {{policy.name}}
         {% endfor %}
 
-  ##########################################################################
+##########################################################################
 #   REST API                                                             #
 ##########################################################################
   ExecuteAPIForWF:
@@ -76,6 +76,34 @@ Resources:
               Action: "states:StartExecution"
               Resource: !GetAtt {{stepfunctionsarnatrribute}}
 
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'sqs:SendMessage'
+                Resource: 'arn:aws:sqs:*:*:*'
+  
   {% for function in functions -%}
   {{function.name}}:
     {% if function.iscontainer %}
@@ -86,6 +114,9 @@ Resources:
         - x86_64
       Timeout: 600
       MemorySize: {{function.memory}}
+      {%if function.name == "CollectLogs" %}
+      Role: !GetAtt LambdaExecutionRole.Arn
+      {% endif %}
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./functions/{{function.name}}
@@ -95,9 +126,12 @@ Resources:
     Properties:
       CodeUri: {{ function.uri }}
       Handler: {{ function.handler }}
-      Runtime: python3.10
+      Runtime: python3.9
       MemorySize: {{ function.memory }}
       Timeout: 300
+      {%if function.name == "CollectLogs" %}
+      Role: !GetAtt LambdaExecutionRole.Arn
+      {% endif %}
       Architectures:
         - x86_64
     {% endif%}
